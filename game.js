@@ -119,9 +119,7 @@ function create ()
     }
   });
 
-  this.physics.add.collider(player, balls, (_player, _ball) => {
-    console.log(_ball, _ball.body.touching.up, _ball.body.touching.right, _ball.body.touching.down, _ball.body.touching.left)
-    
+  this.physics.add.collider(player, balls, (_player, _ball) => {    
     const playerData = _player.getData('player') || {}
     const playerWithMask = playerData.mask
 
@@ -158,28 +156,33 @@ function create ()
     mask.setDisplaySize(20, 20)
 
     this.physics.add.overlap(player, mask, (_player, _mask) => {
-      _mask.destroy()
-      
-      player.setData('player', { mask: true })
-      player.setTexture('player_mask')
+      _player.setData('player', { mask: true })
+      _player.setTexture('player_mask')
 
+      _mask.destroy()
       timerNextItem()
     })
   };
 
-  const setSocialDistancingItem = (max = 1) => {
+  const setSocialDistancingItem = max => {
     const widthObject = 20
     const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
     const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
 
-    const itemSocialDistancing = this.physics.add.image(x, y, 'item_social_distancing')
+    let itemSocialDistancing
+    if (max === 1) {
+      itemSocialDistancing = this.physics.add.image(x, y, 'item_more_social_distancing')
+    } else {
+      itemSocialDistancing = this.physics.add.image(x, y, 'item_social_distancing')
+    }
     itemSocialDistancing.setDisplaySize(20, 20)
+    itemSocialDistancing.setData('socialDistancingIntensity', max)
 
     this.physics.add.overlap(player, itemSocialDistancing, (_player, _itemSocialDistancing) => {
-      _itemSocialDistancing.destroy()
-
+      const socialDistancingIntensity = _itemSocialDistancing.getData('socialDistancingIntensity')
+      
       balls.getChildren().forEach(ball => {
-        const rand = Phaser.Math.Between(0, max)
+        const rand = Phaser.Math.Between(0, socialDistancingIntensity)
       
         if (rand === 0) {
           ball.setVelocity(0)
@@ -198,20 +201,25 @@ function create ()
           });
         }
       })
-
+      _itemSocialDistancing.destroy()
       timerNextItem()
     })
   };
 
   const randomNextItem = () => {
-    const rand = Phaser.Math.Between(0, 1)
+    const rand = Phaser.Math.Between(0, 2)
 
     switch(rand) {
       case 0:
         setMaskItem()
         return
       case 1:
-        setSocialDistancingItem()
+        // more social distancing
+        setSocialDistancingItem(1)
+        return
+      case 2:
+        // social distancing
+        setSocialDistancingItem(4)
         return
     }
   }
