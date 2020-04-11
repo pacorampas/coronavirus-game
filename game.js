@@ -61,10 +61,10 @@ function preload ()
   this.load.image('ball', 'assets/person.png');
   this.load.image('infected', 'assets/infected.png');
 
-  this.load.image('mask', 'assets/mask.png');
-  this.load.image('forced_quarentine', 'assets/forced_quarentine.png');
-  this.load.image('social_distancing', 'assets/social_distancing.png');
-  this.load.image('more_social_distancing', 'assets/more_social_distancing.png');
+  this.load.image('item_mask', 'assets/mask.png');
+  this.load.image('item_forced_quarentine', 'assets/forced_quarentine.png');
+  this.load.image('item_social_distancing', 'assets/social_distancing.png');
+  this.load.image('item_more_social_distancing', 'assets/more_social_distancing.png');
 
   this.load.image('player', 'assets/player.png');
   this.load.image('player_mask', 'assets/player_mask.png');
@@ -101,7 +101,7 @@ function create ()
   balls.getChildren().forEach(ball => {
     ball.setDisplaySize(40, 40)
   
-    if (Math.random() >= 0.5) {
+    if (Phaser.Math.Between(0, 1) === 1) {
       ball.setVelocity(-100)
     }
   })
@@ -154,7 +154,7 @@ function create ()
     const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
     const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
 
-    const mask = this.physics.add.image(x, y, 'mask')
+    const mask = this.physics.add.image(x, y, 'item_mask')
     mask.setDisplaySize(20, 20)
 
     this.physics.add.overlap(player, mask, (_player, _mask) => {
@@ -167,12 +167,59 @@ function create ()
     })
   };
 
+  const setSocialDistancingItem = (max = 1) => {
+    const widthObject = 20
+    const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
+    const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
+
+    const itemSocialDistancing = this.physics.add.image(x, y, 'item_social_distancing')
+    itemSocialDistancing.setDisplaySize(20, 20)
+
+    this.physics.add.overlap(player, itemSocialDistancing, (_player, _itemSocialDistancing) => {
+      _itemSocialDistancing.destroy()
+
+      balls.getChildren().forEach(ball => {
+        const rand = Phaser.Math.Between(0, max)
+      
+        if (rand === 0) {
+          ball.setVelocity(0)
+          ball.setImmovable(true)
+
+          this.time.addEvent({
+            delay: 5000,
+            callback: () => {
+              const isPositive = Phaser.Math.Between(0, 1)
+              ball.setVelocity(isPositive ? -100 : 100)
+              ball.setImmovable(false)
+            },
+            //args: [],
+            callbackScope: this,
+            loop: false
+          });
+        }
+      })
+
+      timerNextItem()
+    })
+  };
+
+  const randomNextItem = () => {
+    const rand = Phaser.Math.Between(0, 1)
+
+    switch(rand) {
+      case 0:
+        setMaskItem()
+        return
+      case 1:
+        setSocialDistancingItem()
+        return
+    }
+  }
+
   const timerNextItem = () => {
     this.time.addEvent({
       delay: 1000,
-      callback: () => {
-        setMaskItem()
-      },
+      callback: randomNextItem,
       //args: [],
       callbackScope: this,
       loop: false
