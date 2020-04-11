@@ -60,7 +60,14 @@ function preload ()
 {
   this.load.image('ball', 'assets/person.png');
   this.load.image('infected', 'assets/infected.png');
+
+  this.load.image('mask', 'assets/mask.png');
+  this.load.image('forced_quarentine', 'assets/forced_quarentine.png');
+  this.load.image('social_distancing', 'assets/social_distancing.png');
+  this.load.image('more_social_distancing', 'assets/more_social_distancing.png');
+
   this.load.image('player', 'assets/player.png');
+  this.load.image('player_mask', 'assets/player_mask.png');
 }
 
 function create ()
@@ -115,8 +122,17 @@ function create ()
   this.physics.add.collider(player, balls, (_player, _ball) => {
     console.log(_ball, _ball.body.touching.up, _ball.body.touching.right, _ball.body.touching.down, _ball.body.touching.left)
     
+    const playerData = _player.getData('player') || {}
+    const playerWithMask = playerData.mask
+
     if (_ball.getData('infected')) {
-      this.scene.pause()
+      if (playerWithMask) {
+        playerData.mask = false
+        _player.setData('player', playerData)
+        _player.setTexture('player')
+      } else {
+        this.scene.pause()
+      }
     }
 
     // if (_ball.body.touching.up) {
@@ -132,6 +148,38 @@ function create ()
 
   //createWorldGui(this.physics.world);
   cursors = this.input.keyboard.createCursorKeys();
+
+  const setMaskItem = () => {
+    const widthObject = 20
+    const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
+    const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
+
+    const mask = this.physics.add.image(x, y, 'mask')
+    mask.setDisplaySize(20, 20)
+
+    this.physics.add.overlap(player, mask, (_player, _mask) => {
+      _mask.destroy()
+      
+      player.setData('player', { mask: true })
+      player.setTexture('player_mask')
+
+      timerNextItem()
+    })
+  };
+
+  const timerNextItem = () => {
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        setMaskItem()
+      },
+      //args: [],
+      callbackScope: this,
+      loop: false
+    });
+  }
+
+  timerNextItem()
 
 }
 
