@@ -75,10 +75,48 @@ function preload ()
   this.load.image('player_mask', 'assets/player_mask.png');
   this.load.image('player_respirator', 'assets/player_respirator.png');
   this.load.image('player_mask_respirator', 'assets/player_mask_respirator.png');
+
+
+  this.load.spritesheet('player_up', 'assets/sprite_player_up.png', { frameWidth: 48, frameHeight: 52 });
+  this.load.spritesheet('player_right', 'assets/sprite_player_right.png', { frameWidth: 48, frameHeight: 52 });
+  this.load.spritesheet('player_down', 'assets/sprite_player_down.png', { frameWidth: 48, frameHeight: 52 });
+  this.load.spritesheet('player_left', 'assets/sprite_player_left.png', { frameWidth: 48, frameHeight: 52 });
 }
 
 function create ()
-{
+{ 
+  animPlayerWalkUp = this.anims.create({
+    key: 'player_walk_up',
+    frames: this.anims.generateFrameNumbers('player_up'),
+    frameRate: 4,
+    yoyo: false,
+    repeat: -1
+  });
+
+  animPlayerWalkRight = this.anims.create({
+    key: 'player_walk_right',
+    frames: this.anims.generateFrameNumbers('player_right'),
+    frameRate: 4,
+    yoyo: false,
+    repeat: -1
+  });
+
+  animPlayerWalkLeft = this.anims.create({
+    key: 'player_walk_down',
+    frames: this.anims.generateFrameNumbers('player_down'),
+    frameRate: 4,
+    yoyo: false,
+    repeat: -1
+  });
+
+  animPlayerWalkLeft = this.anims.create({
+    key: 'player_walk_left',
+    frames: this.anims.generateFrameNumbers('player_left'),
+    frameRate: 4,
+    yoyo: false,
+    repeat: -1
+  });
+
   const playerUpdateTexture = () => {
     const data = player.getData('player')
     
@@ -108,9 +146,16 @@ function create ()
 
   timeText = this.add.text(2, 2);
 
-  player = this.physics.add.image(0, 0, 'player')
-  player.setSize(200, 200, true)
-  player.setDisplaySize(40, 40)
+  // player = this.physics.add.image(0, 0, 'player')
+  player = this.physics.add.sprite(0, 0, 'player');
+  
+  player.anims.load('player_walk_up');
+  player.anims.load('player_walk_right');
+  player.anims.load('player_walk_down');
+  player.anims.load('player_walk_left');
+
+  player.setSize(48, 52, true)
+  // player.setDisplaySize(40, 40)
   // player.body.gameObject.tint = 0xff0000
   player.setCollideWorldBounds(true)
   player.setBounce(1)
@@ -425,22 +470,26 @@ function update ()
   {
     player.setVelocityY(0)
     player.setVelocityX(GLOB_VELOCITY * -1);
+    player.anims.play('player_walk_left')
   }
   else if (Phaser.Input.Keyboard.JustDown(cursors.right))
   {
     player.setVelocityY(0)
     player.setVelocityX(GLOB_VELOCITY);
+    player.anims.play('player_walk_right')
   }
 
   if (Phaser.Input.Keyboard.JustDown(cursors.up))
   { 
     player.setVelocityX(0)
     player.setVelocityY(GLOB_VELOCITY * -1);
+    player.anims.play('player_walk_up')
   }
   else if (Phaser.Input.Keyboard.JustDown(cursors.down))
   {
     player.setVelocityX(0)
     player.setVelocityY(GLOB_VELOCITY);
+    player.anims.play('player_walk_down')
   }
 }
 
