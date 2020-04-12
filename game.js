@@ -67,15 +67,41 @@ function preload ()
   this.load.image('item_forced_quarentine', 'assets/forced_quarentine.png');
   this.load.image('item_social_distancing', 'assets/social_distancing.png');
   this.load.image('item_more_social_distancing', 'assets/more_social_distancing.png');
+  this.load.image('item_respirator', 'assets/respirator.png')
 
   this.load.image('solid_block', 'assets/block.png')
 
   this.load.image('player', 'assets/player.png');
   this.load.image('player_mask', 'assets/player_mask.png');
+  this.load.image('player_respirator', 'assets/player_respirator.png');
+  this.load.image('player_mask_respirator', 'assets/player_mask_respirator.png');
 }
 
 function create ()
 {
+  const playerUpdateTexture = () => {
+    const data = player.getData('player')
+    
+    if (data.mask && data.respirator) {
+      player.setTexture('player_mask_respirator')
+    } else if (data.mask) {
+      player.setTexture('player_mask')
+    } else if (data.respirator) {
+      player.setTexture('player_respirator')
+    } else {
+      player.setTexture('player')
+    }
+  }
+
+  const ballUpdateTexture = ball => {
+    const infected = ball.getData('infected')
+    
+    if (infected) {
+      ball.setTexture('infected')
+    } else {
+      ball.setTexture('ball')
+    }
+  }
   // this.physics.world.setBounds(50, 50, 700, 500);
 
   // graphics = this.add.graphics();
@@ -85,7 +111,7 @@ function create ()
   player = this.physics.add.image(0, 0, 'player')
   player.setSize(200, 200, true)
   player.setDisplaySize(40, 40)
-  player.body.gameObject.tint = 0xff0000
+  // player.body.gameObject.tint = 0xff0000
   player.setCollideWorldBounds(true)
   player.setBounce(1)
 
@@ -114,28 +140,33 @@ function create ()
     }
   })
 
-  balls.getChildren()[0].setTexture('infected')
   balls.getChildren()[0].setData('infected', true)
+  ballUpdateTexture(balls.getChildren()[0])
 
   this.physics.add.collider(balls, balls, (_ballA, _ballB) => {
     if (_ballA.getData('infected') && !_ballB.getData('infected')) {
       _ballB.setData('infected', true)
-      _ballB.setTexture('infected')
+      ballUpdateTexture(_ballB)
     } else if (_ballB.getData('infected') && !_ballA.getData('infected')) {
       _ballA.setData('infected', true)
-      _ballA.setTexture('infected')
+      ballUpdateTexture(_ballA)
     }
   });
 
   this.physics.add.collider(player, balls, (_player, _ball) => {    
     const playerData = _player.getData('player') || {}
-    const playerWithMask = playerData.mask
 
     if (_ball.getData('infected')) {
-      if (playerWithMask) {
+      if (playerData.mask) {
         playerData.mask = false
         _player.setData('player', playerData)
-        _player.setTexture('player')
+        playerUpdateTexture()
+      } else if (playerData.respirator) {
+        _ball.setData('infected', false)
+        ballUpdateTexture(_ball)
+        playerData.respirator = false
+        _player.setData('player', playerData)
+        playerUpdateTexture()
       } else {
         this.scene.pause()
       }
@@ -164,10 +195,32 @@ function create ()
     mask.setDisplaySize(20, 20)
 
     this.physics.add.overlap(player, mask, (_player, _mask) => {
-      _player.setData('player', { mask: true })
-      _player.setTexture('player_mask')
+      const prevData = _player.getData('player')
+  
+      _player.setData('player', { ...prevData, mask: true })
+      playerUpdateTexture()
 
       _mask.destroy()
+      timerNextItem()
+    })
+  };
+
+  const setRespirator = () => {
+    const widthObject = 20
+    const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
+    const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
+
+    const respirator = this.physics.add.image(x, y, 'item_respirator')
+    respirator.setDisplaySize(20, 20)
+
+    this.physics.add.overlap(player, respirator, (_player, _respirator) => {
+      const prevData = _player.getData('player')
+      
+      _player.setData('player', { ...prevData, respirator: true })
+
+      playerUpdateTexture()
+
+      _respirator.destroy()
       timerNextItem()
     })
   };
@@ -283,21 +336,24 @@ function create ()
   };
 
   const randomNextItem = () => {
-    const rand = Phaser.Math.Between(0, 3)
+    const rand = Phaser.Math.Between(0, 4)
 
     switch(rand) {
       case 0:
-        setMaskItem()
+        setRespirator()
         return
       case 1:
+        setMaskItem()
+        return
+      case 2:
         // more social distancing
         setSocialDistancingItem(1)
         return
-      case 2:
+      case 3:
         // social distancing
         setSocialDistancingItem(4)
         return
-      case 3:
+      case 4:
         setQuarentineWall()
         return
     }
@@ -316,7 +372,6 @@ function create ()
   timerNextItem()
 
   const updateVelocity = () => {
-    console.log(player.body.velocity)
     const updateBodyVelocity = object => {
       const { x, y } = object.body.velocity
       if (x !== 0) {
@@ -346,7 +401,6 @@ function create ()
         const a = time % 5
         if (a === 0) {
           GLOB_VELOCITY = GLOB_VELOCITY * 1.05
-          console.log(GLOB_VELOCITY)
           updateVelocity()
         }
 
