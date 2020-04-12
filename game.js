@@ -52,6 +52,9 @@ var config = {
 var player;
 var graphics;
 var cursor;
+var timeText;
+let GLOB_VELOCITY = 100
+var time = 0
 
 var game = new Phaser.Game(config);
 
@@ -77,6 +80,8 @@ function create ()
 
   // graphics = this.add.graphics();
 
+  timeText = this.add.text(2, 2);
+
   player = this.physics.add.image(0, 0, 'player')
   player.setDisplaySize(40, 40)
   player.body.gameObject.tint = 0xff0000
@@ -89,8 +94,8 @@ function create ()
       collideWorldBounds: true,
       bounceX: 1,
       bounceY: 1,
-      velocityX: 100,
-      velocityY: 100
+      velocityX: GLOB_VELOCITY,
+      velocityY: GLOB_VELOCITY
   });
 
   Phaser.Actions.RandomRectangle(balls.getChildren(), this.physics.world.bounds);
@@ -103,7 +108,7 @@ function create ()
     ball.setDisplaySize(40, 40)
   
     if (Phaser.Math.Between(0, 1) === 1) {
-      ball.setVelocity(-100)
+      ball.setVelocity(GLOB_VELOCITY * -1)
     }
   })
 
@@ -193,7 +198,7 @@ function create ()
             delay: 5000,
             callback: () => {
               const isPositive = Phaser.Math.Between(0, 1)
-              ball.setVelocity(isPositive ? -100 : 100)
+              ball.setVelocity(isPositive ? GLOB_VELOCITY * -1 : GLOB_VELOCITY)
               ball.setImmovable(false)
             },
             //args: [],
@@ -308,6 +313,50 @@ function create ()
 
   timerNextItem()
 
+  const updateVelocity = () => {
+    console.log(player.body.velocity)
+    const updateBodyVelocity = object => {
+      const { x, y } = object.body.velocity
+      if (x !== 0) {
+        const isPositive = x > 0
+        const newVelocity = isPositive ? GLOB_VELOCITY : GLOB_VELOCITY * -1 
+        object.body.setVelocityX(newVelocity)
+      }
+
+      if (y !== 0) {
+        const isPositive = y > 0
+        const newVelocity = isPositive ? GLOB_VELOCITY : GLOB_VELOCITY * -1 
+        object.body.setVelocityY(newVelocity)
+      }
+    }
+    updateBodyVelocity(player)
+    balls.getChildren().forEach(ball => {
+      updateBodyVelocity(ball)
+    })
+  }
+
+  const timer = () => {
+    timeText.setText(`Time: ${time}`)
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        time += 1
+        const a = time % 5
+        if (a === 0) {
+          GLOB_VELOCITY = GLOB_VELOCITY * 1.05
+          console.log(GLOB_VELOCITY)
+          updateVelocity()
+        }
+
+        timer()
+      },
+      //args: [],
+      callbackScope: this,
+      loop: false
+    });
+  }
+
+  timer()
 }
 
 function update ()
@@ -319,23 +368,23 @@ function update ()
   if (Phaser.Input.Keyboard.JustDown(cursors.left))
   {
     player.setVelocityY(0)
-    player.setVelocityX(-100);
+    player.setVelocityX(GLOB_VELOCITY * -1);
   }
   else if (Phaser.Input.Keyboard.JustDown(cursors.right))
   {
     player.setVelocityY(0)
-    player.setVelocityX(100);
+    player.setVelocityX(GLOB_VELOCITY);
   }
 
   if (Phaser.Input.Keyboard.JustDown(cursors.up))
   { 
     player.setVelocityX(0)
-    player.setVelocityY(-100);
+    player.setVelocityY(GLOB_VELOCITY * -1);
   }
   else if (Phaser.Input.Keyboard.JustDown(cursors.down))
   {
     player.setVelocityX(0)
-    player.setVelocityY(100);
+    player.setVelocityY(GLOB_VELOCITY);
   }
 }
 
