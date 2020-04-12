@@ -83,6 +83,7 @@ function create ()
   timeText = this.add.text(2, 2);
 
   player = this.physics.add.image(0, 0, 'player')
+  player.setSize(200, 200, true)
   player.setDisplaySize(40, 40)
   player.body.gameObject.tint = 0xff0000
   player.setCollideWorldBounds(true)
@@ -105,6 +106,7 @@ function create ()
   // a.addMultiple(balls.getChildren(), true)
 
   balls.getChildren().forEach(ball => {
+    ball.setSize(200, 200, true)
     ball.setDisplaySize(40, 40)
   
     if (Phaser.Math.Between(0, 1) === 1) {
