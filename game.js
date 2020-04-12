@@ -2,7 +2,7 @@
 
 var config = {
   type: Phaser.AUTO,
-  width: 800,
+  width: 1000,
   height: 600,
   backgroundColor: 0x222222,
   parent: 'phaser-example',
@@ -37,7 +37,7 @@ var config = {
           tileBias: 16,
           timeScale: 1,
           useTree: true,
-          width: 800,
+          width: 1000,
           x: 0,
           y: 0
       }
@@ -50,7 +50,6 @@ var config = {
 };
 
 var player;
-var blocks;
 var graphics;
 var cursor;
 
@@ -65,6 +64,8 @@ function preload ()
   this.load.image('item_forced_quarentine', 'assets/forced_quarentine.png');
   this.load.image('item_social_distancing', 'assets/social_distancing.png');
   this.load.image('item_more_social_distancing', 'assets/more_social_distancing.png');
+
+  this.load.image('solid_block', 'assets/block.png')
 
   this.load.image('player', 'assets/player.png');
   this.load.image('player_mask', 'assets/player_mask.png');
@@ -206,8 +207,76 @@ function create ()
     })
   };
 
+  const setQuarentineWall = () => {
+    const widthObject = 20
+
+    // if the world is landscape or portrait
+    // landscape set wall vetical
+    // portrait set wall horizontal
+    const isLandscape = this.game.config.width >= this.game.config.height
+    let line
+    if (isLandscape) {
+      const x = Phaser.Math.Between(100, this.game.config.width - (widthObject - 100))
+      line = new Phaser.Geom.Line(
+        x, 
+        0, 
+        x, 
+        this.game.config.height
+      )
+    } else {
+      const y = Phaser.Math.Between(100, this.game.config.height - (widthObject - 100))
+      line = new Phaser.Geom.Line(
+        0, 
+        y, 
+        this.game.config.width, 
+        y
+      )
+    }
+
+
+    let howManyBocks
+    if (isLandscape) {
+      howManyBocks = Math.ceil(this.game.config.height / widthObject)
+    } else {
+      howManyBocks = Math.ceil(this.game.config.width / widthObject)
+    }
+
+
+    const blocks = this.physics.add.group({
+      key: 'solid_block',
+      frameQuantity: howManyBocks,
+      collideWorldBounds: true,
+      bounceX: 1,
+      bounceY: 1,
+      velocityX: 0,
+      velocityY: 0,
+      immovable: true
+    });
+
+    blocks.getChildren().forEach((block, i) => {
+      block.setDisplaySize(widthObject, widthObject)
+    })
+
+    Phaser.Actions.PlaceOnLine(blocks.getChildren(), line)
+
+    this.physics.add.collider(blocks, player)
+    this.physics.add.collider(blocks, balls)
+
+    this.time.addEvent({
+      delay: 5000,
+      callback: () => {
+        blocks.clear(true, true)
+        timerNextItem()
+      },
+      //args: [],
+      callbackScope: this,
+      loop: false
+    });
+
+  };
+
   const randomNextItem = () => {
-    const rand = Phaser.Math.Between(0, 2)
+    const rand = Phaser.Math.Between(0, 3)
 
     switch(rand) {
       case 0:
@@ -220,6 +289,9 @@ function create ()
       case 2:
         // social distancing
         setSocialDistancingItem(4)
+        return
+      case 3:
+        setQuarentineWall()
         return
     }
   }
@@ -263,7 +335,7 @@ function update ()
   else if (Phaser.Input.Keyboard.JustDown(cursors.down))
   {
     player.setVelocityX(0)
-      player.setVelocityY(100);
+    player.setVelocityY(100);
   }
 }
 
