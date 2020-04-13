@@ -5,7 +5,10 @@ var config = {
   width: 1000,
   height: 600,
   backgroundColor: 0x222222,
-  parent: 'phaser-example',
+  parent: 'coronavirus-game',
+  dom: {
+    createContainer: true
+  },
   physics: {
       default: 'arcade',
       // https://photonstorm.github.io/phaser3-docs/Phaser.Types.Physics.Arcade.html#.ArcadeWorldConfig
