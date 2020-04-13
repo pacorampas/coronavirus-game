@@ -60,7 +60,7 @@ var cursor;
 var timeText;
 var gameOverText;
 let GLOB_VELOCITY = 100
-var time = 0
+var time
 
 var game = new Phaser.Game(config);
 
@@ -430,6 +430,7 @@ function create ()
     })
   }
 
+  time = 0
   const timer = () => {
     timeText.setText(`Time: ${time}`)
     this.time.addEvent({
