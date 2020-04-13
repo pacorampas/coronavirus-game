@@ -52,6 +52,8 @@ var config = {
   }
 };
 
+const BALLS_LENGTH = 14
+
 var player;
 var graphics;
 var cursor;
@@ -111,7 +113,12 @@ function create ()
 
   timeText = this.add.text(2, 2);
 
-  player = this.physics.add.image(0, 0, 'player')
+  player = this.physics.add.image(
+    this.game.config.width / 2 - 20,
+    this.game.config.height / 2 - 20,
+    'player'
+  )
+  player.setVelocityX(GLOB_VELOCITY * -1)
   player.setSize(200, 200, true)
   player.setDisplaySize(40, 40)
   // player.body.gameObject.tint = 0xff0000
@@ -120,7 +127,7 @@ function create ()
 
   balls = this.physics.add.group({
       key: 'ball',
-      frameQuantity: 6,
+      frameQuantity: BALLS_LENGTH,
       collideWorldBounds: true,
       bounceX: 1,
       bounceY: 1,
@@ -228,27 +235,27 @@ function create ()
     })
   };
 
-  const setSocialDistancingItem = max => {
+  const setSocialDistancingItem = (howManyShouldBeStopped, textureImageForItem) => {
     const widthObject = 20
     const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
     const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
 
     let itemSocialDistancing
-    if (max === 1) {
+    if (textureImageForItem === 1) {
       itemSocialDistancing = this.physics.add.image(x, y, 'item_more_social_distancing')
     } else {
       itemSocialDistancing = this.physics.add.image(x, y, 'item_social_distancing')
     }
     itemSocialDistancing.setDisplaySize(20, 20)
-    itemSocialDistancing.setData('socialDistancingIntensity', max)
+    itemSocialDistancing.setData('socialDistancingIntensity', howManyShouldBeStopped)
 
     this.physics.add.overlap(player, itemSocialDistancing, (_player, _itemSocialDistancing) => {
       const socialDistancingIntensity = _itemSocialDistancing.getData('socialDistancingIntensity')
       
-      balls.getChildren().forEach(ball => {
-        const rand = Phaser.Math.Between(0, socialDistancingIntensity)
+      balls.getChildren().forEach((ball, i) => {
+        const howManyShouldBeStopped = socialDistancingIntensity
       
-        if (rand === 0) {
+        if (howManyShouldBeStopped > i) {
           ball.setVelocity(0)
           ball.setImmovable(true)
 
@@ -342,7 +349,7 @@ function create ()
   };
 
   const randomNextItem = () => {
-    const rand = Phaser.Math.Between(4, 4)
+    const rand = Phaser.Math.Between(0, 4)
 
     switch(rand) {
       case 0:
@@ -353,11 +360,11 @@ function create ()
         return
       case 2:
         // more social distancing
-        setSocialDistancingItem(1)
+        setSocialDistancingItem(Math.floor(BALLS_LENGTH / 2), 1)
         return
       case 3:
         // social distancing
-        setSocialDistancingItem(4)
+        setSocialDistancingItem(Math.floor(BALLS_LENGTH / 4))
         return
       case 4:
         setQuarentineWall()
