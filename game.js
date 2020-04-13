@@ -1,5 +1,68 @@
 /* global dat */
 
+class TextButton extends Phaser.GameObjects.Text {
+  constructor(scene, x, y, text, style, callback) {
+    super(scene, x, y, text, style)
+
+    this.setInteractive({ useHandCursor: true })
+      .on('pointerover', () => this.enterButtonHoverState())
+      .on('pointerout', () => this.enterButtonRestState())
+      .on('pointerdown', () => this.enterButtonActiveState())
+      .on('pointerup', () => {
+        this.enterButtonHoverState()
+        callback()
+      })
+  }
+
+  enterButtonHoverState() {
+    this.setStyle({ fill: '#ff0' })
+  }
+
+  enterButtonRestState() {
+    this.setStyle({ fill: '#0f0' })
+  }
+
+  enterButtonActiveState() {
+    this.setStyle({ fill: '#0ff' })
+  }
+}
+
+class PowerUp {
+  sprintButton = null
+
+  constructor(scene) {
+    this.scene = scene
+
+    // TODO destroy power ups on game over
+    this.createSprintButton()
+  }
+
+  createSprintButton = () => {
+    this.sprintButton = new TextButton(
+      this.scene,
+      40,
+      config.height - 40,
+      'Sprint!',
+      { fill: '#0f0' },
+      this.handleSprintClick
+    )
+    this.scene.add.existing(this.sprintButton)
+  }
+
+  handleSprintClick = () => {
+    this.sprintButton.text = 'Recharging...'
+    this.sprintButton.input.enabled = false
+    // TODO update player velocity
+    player.setVelocity(200)
+
+    setTimeout(() => {
+      this.sprintButton.text = 'Sprint!'
+      this.sprintButton.input.enabled = true
+      player.setVelocity(GLOB_VELOCITY)
+    }, 5000)
+  }
+}
+
 var config = {
   type: Phaser.AUTO,
   width: 1000,
@@ -62,6 +125,7 @@ var gameOverText
 let GLOB_VELOCITY = 100
 var time = 0
 var joystick
+var powerUps
 
 var game = new Phaser.Game(config)
 
@@ -251,6 +315,10 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys()
   }
   //cursors = this.input.keyboard.createCursorKeys();
+
+  // SETUP PowerUps
+  powerUps = new PowerUp(this)
+  console.info(powerUps)
 
   const setMaskItem = () => {
     const widthObject = 20
