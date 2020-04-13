@@ -20,13 +20,13 @@ var config = {
               left: true,
               right: true
           },
-          debug: true,
-          debugBodyColor: 0xff00ff,
-          debugShowBody: true,
-          debugShowStaticBody: true,
-          debugShowVelocity: true,
-          debugStaticBodyColor: 0x0000ff,
-          debugVelocityColor: 0x00ff00,
+          // debug: true,
+          // debugBodyColor: 0xff00ff,
+          // debugShowBody: true,
+          // debugShowStaticBody: true,
+          // debugShowVelocity: true,
+          // debugStaticBodyColor: 0x0000ff,
+          // debugVelocityColor: 0x00ff00,
           forceX: false,
           fps: 60,
           gravity: {
@@ -58,6 +58,7 @@ var player;
 var graphics;
 var cursor;
 var timeText;
+var gameOverText;
 let GLOB_VELOCITY = 100
 var time = 0
 
@@ -178,7 +179,31 @@ function create ()
         _player.setData('player', playerData)
         playerUpdateTexture()
       } else {
-        this.scene.pause()
+        player.destroy()
+        gameOverText = this.add.text(0, this.game.config.height / 2)
+        gameOverText.setStyle({
+          fontSize: '24px',
+          color: '#000000',
+          align: 'center',
+          backgroundColor: '#f9f9f9',
+          fixedWidth: this.game.config.width
+        })
+        gameOverText.setText('GAME OVER')
+        gameOverText.setPosition(0, this.game.config.height / 2 - gameOverText.height / 2)
+
+        const textRestart = this.add.text(0, this.game.config.height / 2 - gameOverText.height + 60)
+        textRestart.setStyle({
+          fontSize: '20px',
+          color: '#ffffff',
+          align: 'center',
+          fixedWidth: this.game.config.width
+        })
+        textRestart.setText('click to restart')
+
+        textRestart.setInteractive()
+        textRestart.on('pointerdown', () => { 
+          this.scene.restart()
+        });
       }
     }
 
@@ -410,6 +435,10 @@ function create ()
     this.time.addEvent({
       delay: 1000,
       callback: () => {
+        if (!player.active) {
+          return
+        }
+
         time += 1
         const a = time % 5
         if (a === 0) {
@@ -433,6 +462,10 @@ function update ()
   this.physics.world.wrap(balls);
 
   // graphics.clear().fillStyle(0).fillRectShape(this.physics.world.bounds);
+
+  if (!player.active) {
+    return
+  }
 
   if (Phaser.Input.Keyboard.JustDown(cursors.left))
   {
