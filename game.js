@@ -278,20 +278,24 @@ function create ()
     // portrait set wall horizontal
     const isLandscape = this.game.config.width >= this.game.config.height
     let line
+    // add 10 because without this the line stars with -10 when is used with PlaceOnLine
+    const addPixels = 10 
     if (isLandscape) {
-      const x = Phaser.Math.Between(100, this.game.config.width - (widthObject - 100))
+      const max = this.game.config.width - (widthObject + 100)
+      const x = Phaser.Math.Between(100, max)
       line = new Phaser.Geom.Line(
         x, 
-        0, 
+        0 + addPixels,
         x, 
-        this.game.config.height
+        this.game.config.height + addPixels
       )
     } else {
-      const y = Phaser.Math.Between(100, this.game.config.height - (widthObject - 100))
+      const max = this.game.config.height - (widthObject + 100)
+      const y = Phaser.Math.Between(100, max)
       line = new Phaser.Geom.Line(
-        0, 
+        0 + addPixels, 
         y, 
-        this.game.config.width, 
+        this.game.config.width + addPixels, 
         y
       )
     }
@@ -304,7 +308,6 @@ function create ()
       howManyBocks = Math.ceil(this.game.config.width / widthObject)
     }
 
-
     const blocks = this.physics.add.group({
       key: 'solid_block',
       frameQuantity: howManyBocks,
@@ -316,7 +319,7 @@ function create ()
       immovable: true
     });
 
-    blocks.getChildren().forEach((block, i) => {
+    blocks.getChildren().forEach(block => {
       block.setDisplaySize(widthObject, widthObject)
     })
 
@@ -339,7 +342,7 @@ function create ()
   };
 
   const randomNextItem = () => {
-    const rand = Phaser.Math.Between(0, 4)
+    const rand = Phaser.Math.Between(4, 4)
 
     switch(rand) {
       case 0:
