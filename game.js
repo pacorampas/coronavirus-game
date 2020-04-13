@@ -321,12 +321,12 @@ function create() {
   console.info(powerUps)
 
   const setMaskItem = () => {
-    const widthObject = 20
+    const widthObject = 40
     const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
     const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
 
     const mask = this.physics.add.image(x, y, 'item_mask')
-    mask.setDisplaySize(20, 20)
+    mask.setDisplaySize(widthObject, widthObject)
 
     this.physics.add.overlap(player, mask, (_player, _mask) => {
       const prevData = _player.getData('player')
@@ -340,12 +340,12 @@ function create() {
   }
 
   const setRespirator = () => {
-    const widthObject = 20
+    const widthObject = 40
     const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
     const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
 
     const respirator = this.physics.add.image(x, y, 'item_respirator')
-    respirator.setDisplaySize(20, 20)
+    respirator.setDisplaySize(widthObject, widthObject)
 
     this.physics.add.overlap(player, respirator, (_player, _respirator) => {
       const prevData = _player.getData('player')
@@ -363,7 +363,7 @@ function create() {
     howManyShouldBeStopped,
     textureImageForItem
   ) => {
-    const widthObject = 20
+    const widthObject = 40
     const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
     const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
 
@@ -381,7 +381,7 @@ function create() {
         'item_social_distancing'
       )
     }
-    itemSocialDistancing.setDisplaySize(20, 20)
+    itemSocialDistancing.setDisplaySize(widthObject, widthObject)
     itemSocialDistancing.setData(
       'socialDistancingIntensity',
       howManyShouldBeStopped
