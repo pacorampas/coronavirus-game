@@ -215,6 +215,7 @@ function create() {
           fixedWidth: this.game.config.width,
         })
         textRestart.setText('click to restart')
+        GLOB_VELOCITY = 100
 
         textRestart.setInteractive()
         textRestart.on('pointerdown', () => {
