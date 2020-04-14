@@ -1,68 +1,4 @@
 /* global dat */
-
-class TextButton extends Phaser.GameObjects.Text {
-  constructor(scene, x, y, text, style, callback) {
-    super(scene, x, y, text, style)
-
-    this.setInteractive({ useHandCursor: true })
-      .on('pointerover', () => this.enterButtonHoverState())
-      .on('pointerout', () => this.enterButtonRestState())
-      .on('pointerdown', () => this.enterButtonActiveState())
-      .on('pointerup', () => {
-        this.enterButtonHoverState()
-        callback()
-      })
-  }
-
-  enterButtonHoverState() {
-    this.setStyle({ fill: '#ff0' })
-  }
-
-  enterButtonRestState() {
-    this.setStyle({ fill: '#0f0' })
-  }
-
-  enterButtonActiveState() {
-    this.setStyle({ fill: '#0ff' })
-  }
-}
-
-class PowerUp {
-  sprintButton = null
-
-  constructor(scene) {
-    this.scene = scene
-
-    // TODO destroy power ups on game over
-    this.createSprintButton()
-  }
-
-  createSprintButton = () => {
-    this.sprintButton = new TextButton(
-      this.scene,
-      40,
-      config.height - 40,
-      'Sprint!',
-      { fill: '#0f0' },
-      this.handleSprintClick
-    )
-    this.scene.add.existing(this.sprintButton)
-  }
-
-  handleSprintClick = () => {
-    this.sprintButton.text = 'Recharging...'
-    this.sprintButton.input.enabled = false
-    // TODO update player velocity
-    player.get().setVelocity(200)
-
-    setTimeout(() => {
-      this.sprintButton.text = 'Sprint!'
-      this.sprintButton.input.enabled = true
-      player.get().setVelocity(GLOB_VELOCITY)
-    }, 5000)
-  }
-}
-
 var config = {
   type: Phaser.AUTO,
   width: 1000,
@@ -159,15 +95,6 @@ function preload() {
 }
 
 function create() {
-  const ballUpdateTexture = (ball) => {
-    const infected = ball.getData('infected')
-
-    if (infected) {
-      ball.setTexture('infected')
-    } else {
-      ball.setTexture('ball')
-    }
-  }
   // this.physics.world.setBounds(50, 50, 700, 500);
 
   // graphics = this.add.graphics();
@@ -175,24 +102,8 @@ function create() {
 
   timeText = this.add.text(2, 2)
   player = new PlayerClass(this, GLOB_VELOCITY)
-  // player = this.physics.add.image(
-  //   this.game.config.width / 2 - 20,
-  //   this.game.config.height / 2 - 20,
-  //   'player'
-  // )
-  // player.setVelocityX(GLOB_VELOCITY * -1)
-  // player.setSize(200, 200, true)
-  // player.setDisplaySize(40, 40)
-  // player.body.gameObject.tint = 0xff0000
-  // player.setCollideWorldBounds(true)
-  // player.setBounce(1)
 
   balls = new BallsClass(this, GLOB_VELOCITY, BALLS_LENGTH)
-
-  // var a = new Phaser.Physics.Arcade.Group(this.physics.world, this.physics.scene, balls.getChildren())
-
-  // a.addMultiple(balls.getChildren(), true)
-
   
   const handleGameOver = () => {
     GLOB_VELOCITY = 100
@@ -222,54 +133,8 @@ function create() {
 
   timerNextItem.bind(this)()
 
-  const updateVelocity = () => {
-    const updateBodyVelocity = (object) => {
-      const { x, y } = object.body.velocity
-      if (x !== 0) {
-        const isPositive = x > 0
-        const newVelocity = isPositive ? GLOB_VELOCITY : GLOB_VELOCITY * -1
-        object.body.setVelocityX(newVelocity)
-      }
-
-      if (y !== 0) {
-        const isPositive = y > 0
-        const newVelocity = isPositive ? GLOB_VELOCITY : GLOB_VELOCITY * -1
-        object.body.setVelocityY(newVelocity)
-      }
-    }
-    updateBodyVelocity(player.get())
-    balls.getGroup().getChildren().forEach((ball) => {
-      updateBodyVelocity(ball)
-    })
-  }
-
   time = 0
-  const timer = () => {
-    timeText.setText(`Time: ${time}`)
-    this.time.addEvent({
-      delay: 1000,
-      callback: () => {
-        if (!player.get().active) {
-          return
-        }
-
-        time += 1
-        const a = time % 5
-
-        if (a === 0) {
-          GLOB_VELOCITY = GLOB_VELOCITY * 1.05
-          updateVelocity()
-        }
-
-        timer()
-      },
-      //args: [],
-      callbackScope: this,
-      loop: false,
-    })
-  }
-
-  timer()
+  timer.bind(this)()
 }
 
 function update() {
@@ -324,8 +189,4 @@ function createWorldGui(world) {
   gui.add(world, 'resume')
 
   return gui
-}
-
-var isMobile = function (scene) {
-  return !scene.sys.game.device.os.desktop
 }
