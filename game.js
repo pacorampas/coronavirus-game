@@ -19,13 +19,13 @@ var config = {
         left: true,
         right: true,
       },
-      debug: true,
-      debugBodyColor: 0xff00ff,
-      debugShowBody: true,
-      debugShowStaticBody: true,
-      debugShowVelocity: true,
-      debugStaticBodyColor: 0x0000ff,
-      debugVelocityColor: 0x00ff00,
+      // debug: true,
+      // debugBodyColor: 0xff00ff,
+      // debugShowBody: true,
+      // debugShowStaticBody: true,
+      // debugShowVelocity: true,
+      // debugStaticBodyColor: 0x0000ff,
+      // debugVelocityColor: 0x00ff00,
       forceX: false,
       fps: 60,
       gravity: {
@@ -92,6 +92,12 @@ function preload() {
   this.load.image('player_mask', 'assets/player_mask.png')
   this.load.image('player_respirator', 'assets/player_respirator.png')
   this.load.image('player_mask_respirator', 'assets/player_mask_respirator.png')
+
+
+  this.load.spritesheet('player_down', 'assets/sprite_player_down.png', { frameWidth: 256, frameHeight: 256 });
+  // this.load.spritesheet('player_right', 'assets/sprite_player_right.png', { frameWidth: 48, frameHeight: 52 });
+  // this.load.spritesheet('player_down', 'assets/sprite_player_down.png', { frameWidth: 48, frameHeight: 52 });
+  // this.load.spritesheet('player_left', 'assets/sprite_player_left.png', { frameWidth: 48, frameHeight: 52 });
 }
 
 function create() {

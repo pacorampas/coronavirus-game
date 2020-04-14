@@ -3,17 +3,42 @@ class PlayerClass {
     this.scene = scene
     this.velocity = velocity
 
-    this.player = scene.physics.add.image(
-      scene.game.config.width / 2 - 20,
-      scene.game.config.height / 2 - 20,
-      'player'
-    )
-    this.player.setVelocityX(velocity * -1)
-    this.player.setSize(200, 200, true)
-    this.player.setDisplaySize(40, 40)
+    this.player = this.initSprite()
+
+    this.player.setVelocity(0, velocity)
+    this.player.setSize(256, 256, true)
+    this.player.setDisplaySize(60, 60)
 
     this.player.setCollideWorldBounds(true)
     this.player.setBounce(1)
+  }
+
+  initSprite() {
+    this.scene.anims.create({
+      key: 'player_walk_down',
+      frames: this.scene.anims.generateFrameNumbers('player_down'),
+      frameRate: 8,
+      yoyo: false,
+      repeat: -1,
+    })
+
+    this.player = this.scene.physics.add.sprite(
+      this.scene.game.config.width / 2 - 20,
+      this.scene.game.config.height / 2 - 20,
+      'player'
+    )
+
+    // TO UPDATE THE VELOCITY
+    // this.player.anims.setTimeScale(4)
+
+
+    this.player.anims.load('player_walk_down')
+
+    this.player
+
+    this.player.anims.play('player_walk_down')
+
+    return this.player
   }
 
   get() {
@@ -93,17 +118,21 @@ class PlayerClass {
     if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity * -1)
+      this.player.setAngle(90)
     } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity)
+      this.player.setAngle(-90)
     }
   
     if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity * -1)
+      this.player.setAngle(180)
     } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity)
+      this.player.setAngle(0)
     }
   }
 
