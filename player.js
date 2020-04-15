@@ -8,6 +8,7 @@ class PlayerClass {
     this.player.setVelocity(0, velocity)
     this.player.setSize(150, 150, true)
     this.player.setDisplaySize(60, 60)
+    // not needed because we have a borders created with objects body
     this.player.setCollideWorldBounds(true)
 
     this.player.setBounce(1)
@@ -27,10 +28,6 @@ class PlayerClass {
       this.scene.game.config.height / 2 - 20,
       'player'
     )
-
-    // TO UPDATE THE VELOCITY
-    // this.player.anims.setTimeScale(4)
-
 
     this.player.anims.load('player_walk_down')
 
@@ -57,6 +54,10 @@ class PlayerClass {
   }
 
   inferNewDirection() {
+    if (!this.player || !this.player.body) {
+      return 
+    }
+
     const { x, y } = this.player.body.velocity
 
     const up = y < 0
@@ -118,6 +119,23 @@ class PlayerClass {
     }
   }
 
+  checkIfVelocityIsZeroAndUpdate(playerTouching) {
+    const { x, y } = this.player.body.velocity
+    if (x !== 0 || y !== 0) {
+      return
+    }
+
+    if (playerTouching.up) {
+      this.player.setVelocityY(this.velocity * -1)
+    } else if (playerTouching.right) {
+      this.player.setVelocityX(this.velocity * -1)
+    } else if (playerTouching.down) {
+      this.player.setVelocityY(this.velocity)
+    } else if (playerTouching.left) {
+      this.player.setVelocityX(this.velocity)
+    }
+  }
+
   collideWithBall(balls, onGameOver) {
     this.scene.physics.add.collider(this.player, balls, (_player, _ball) => {
       const playerData = _player.getData('player') || {}
@@ -159,8 +177,6 @@ class PlayerClass {
             fixedWidth: this.scene.game.config.width,
           })
           textRestart.setText('click to restart')
-
-          console.log(this.scene)
   
           textRestart.setInteractive()
           textRestart.on('pointerdown', () => {
@@ -170,23 +186,10 @@ class PlayerClass {
           onGameOver()
         }
       }
-      
-      const { x, y } = this.player.body.velocity
-      if (x !== 0 || y !== 0) {
-        this.setAnimationByDirection()
-        return
-      }
 
-      if (_player.body.touching.up) {
-        _player.setVelocityY(this.velocity * -1)
-      } else if (_player.body.touching.right) {
-        _player.setVelocityX(this.velocity * -1)
-      } else if (_player.body.touching.down) {
-        _player.setVelocityY(this.velocity)
-      } else if (_player.body.touching.left) {
-        _player.setVelocityX(this.velocity)
+      if (_player && _player.body && _player.body.touching) {
+        this.checkIfVelocityIsZeroAndUpdate(_player.body.touching)
       }
-
       this.setAnimationByDirection()
     })
   }

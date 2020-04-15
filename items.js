@@ -1,5 +1,4 @@
 const timerNextItem = function() {
-  console.log('hola', this)
   this.time.addEvent({
     delay: 1000,
     callback: randomNextItem,
@@ -190,7 +189,9 @@ const setQuarentineWall = function() {
 
   Phaser.Actions.PlaceOnLine(blocks.getChildren(), line)
 
-  this.physics.add.collider(blocks, player.get())
+  this.physics.add.collider(blocks, player.get(), () => {
+    player.setAnimationByDirection()
+  })
   this.physics.add.collider(blocks, balls.getGroup())
 
   this.time.addEvent({
