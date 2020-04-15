@@ -51,7 +51,7 @@ var config = {
   },
 }
 
-const BALLS_LENGTH = 1
+const BALLS_LENGTH = 14
 
 var player
 var graphics
