@@ -10,7 +10,7 @@ const timer = function() {
       time += 1
       const a = time % 5
 
-      if (a === 0) {
+      if (a === 0 && this.physics.world.timeScale >= 0.2) {
         this.physics.world.timeScale -= 0.02;
       }
 

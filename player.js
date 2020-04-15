@@ -121,8 +121,6 @@ class PlayerClass {
   collideWithBall(balls, onGameOver) {
     this.scene.physics.add.collider(this.player, balls, (_player, _ball) => {
       const playerData = _player.getData('player') || {}
-
-      this.setAnimationByDirection()
   
       if (_ball.getData('infected')) {
         if (playerData.mask) {
@@ -172,16 +170,24 @@ class PlayerClass {
           onGameOver()
         }
       }
-  
-      // if (_ball.body.touching.up) {
-      //   ball.setVelocity(-100)
-      // } else if (_ball.body.touching.right) {
-      //   ball.setVelocity(-100)
-      // } else if (_ball.body.touching.down) {
-      //   ball.setVelocity(-100)
-      // } else if (_ball.body.touching.left) {
-      //   ball.setVelocity(-100)
-      // }
+      
+      const { x, y } = this.player.body.velocity
+      if (x !== 0 || y !== 0) {
+        this.setAnimationByDirection()
+        return
+      }
+
+      if (_player.body.touching.up) {
+        _player.setVelocityY(this.velocity * -1)
+      } else if (_player.body.touching.right) {
+        _player.setVelocityX(this.velocity * -1)
+      } else if (_player.body.touching.down) {
+        _player.setVelocityY(this.velocity)
+      } else if (_player.body.touching.left) {
+        _player.setVelocityX(this.velocity)
+      }
+
+      this.setAnimationByDirection()
     })
   }
 
