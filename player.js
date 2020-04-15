@@ -6,10 +6,10 @@ class PlayerClass {
     this.player = this.initSprite()
 
     this.player.setVelocity(0, velocity)
-    this.player.setSize(256, 256, true)
+    this.player.setSize(150, 150, true)
     this.player.setDisplaySize(60, 60)
-
     this.player.setCollideWorldBounds(true)
+
     this.player.setBounce(1)
   }
 
@@ -45,9 +45,84 @@ class PlayerClass {
     return this.player
   }
 
+  DIRECTIONS = {
+    up: 1,
+    upRight: 2,
+    right: 3,
+    downRight: 4,
+    down: 5,
+    downLeft: 6,
+    left: 7,
+    upLeft: 8
+  }
+
+  inferNewDirection() {
+    const { x, y } = this.player.body.velocity
+
+    const up = y < 0
+    const down = y > 0
+    const right = x > 0
+    const left = x < 0
+
+    if (up) {
+      if (right) {
+        return this.DIRECTIONS.upRight
+      } else if (left) {
+        return this.DIRECTIONS.upLeft
+      }
+
+      return this.DIRECTIONS.up
+
+    } else if (down) {
+      if (right) {
+        return this.DIRECTIONS.downRight
+      } else if (left) {
+        return this.DIRECTIONS.downLeft
+      }
+      return this.DIRECTIONS.down
+    } 
+    
+    if (right) {
+      return this.DIRECTIONS.right
+    } else if (left) {
+      return this.DIRECTIONS.left
+    }
+  }
+
+  setAnimationByDirection() {
+    switch(this.inferNewDirection()) {
+      case this.DIRECTIONS.up:
+        this.player.setAngle(180)
+        return
+      case this.DIRECTIONS.upRight:
+        this.player.setAngle(-135)
+        return
+      case this.DIRECTIONS.right:
+        this.player.setAngle(-90)
+        return
+      case this.DIRECTIONS.downRight:
+        this.player.setAngle(-45)
+        return
+      case this.DIRECTIONS.down:
+        this.player.setAngle(0)
+        return
+      case this.DIRECTIONS.downLeft:
+        this.player.setAngle(45)
+        return
+      case this.DIRECTIONS.left:
+        this.player.setAngle(90)
+        return
+      case this.DIRECTIONS.upLeft:
+        this.player.setAngle(135)
+        return
+    }
+  }
+
   collideWithBall(balls, onGameOver) {
     this.scene.physics.add.collider(this.player, balls, (_player, _ball) => {
       const playerData = _player.getData('player') || {}
+
+      this.setAnimationByDirection()
   
       if (_ball.getData('infected')) {
         if (playerData.mask) {
@@ -118,21 +193,21 @@ class PlayerClass {
     if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity * -1)
-      this.player.setAngle(90)
+      this.setAnimationByDirection()
     } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity)
-      this.player.setAngle(-90)
+      this.setAnimationByDirection()
     }
   
     if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity * -1)
-      this.player.setAngle(180)
+      this.setAnimationByDirection()
     } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity)
-      this.player.setAngle(0)
+      this.setAnimationByDirection()
     }
   }
 

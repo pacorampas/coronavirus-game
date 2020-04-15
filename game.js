@@ -19,13 +19,13 @@ var config = {
         left: true,
         right: true,
       },
-      // debug: true,
-      // debugBodyColor: 0xff00ff,
-      // debugShowBody: true,
-      // debugShowStaticBody: true,
-      // debugShowVelocity: true,
-      // debugStaticBodyColor: 0x0000ff,
-      // debugVelocityColor: 0x00ff00,
+      debug: true,
+      debugBodyColor: 0xff00ff,
+      debugShowBody: true,
+      debugShowStaticBody: true,
+      debugShowVelocity: true,
+      debugStaticBodyColor: 0x0000ff,
+      debugVelocityColor: 0x00ff00,
       forceX: false,
       fps: 60,
       gravity: {
@@ -58,6 +58,8 @@ var graphics
 var cursor
 var timeText
 var gameOverText
+// https://rexrainbow.github.io/phaser3-rex-notes/docs/site/arcade-world/
+// scene.physics.world.timeScale = timeScale;
 let GLOB_VELOCITY = 100
 var time = 0
 var joystick
