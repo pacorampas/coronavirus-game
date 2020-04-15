@@ -1,25 +1,3 @@
-const updateVelocity = function() {
-  const updateBodyVelocity = (object) => {
-    const { x, y } = object.body.velocity
-    if (x !== 0) {
-      const isPositive = x > 0
-      const newVelocity = isPositive ? GLOB_VELOCITY : GLOB_VELOCITY * -1
-      object.body.setVelocityX(newVelocity)
-    }
-
-    if (y !== 0) {
-      const isPositive = y > 0
-      const newVelocity = isPositive ? GLOB_VELOCITY : GLOB_VELOCITY * -1
-      object.body.setVelocityY(newVelocity)
-    }
-  }
-  
-  updateBodyVelocity(player.get())
-  balls.getGroup().getChildren().forEach((ball) => {
-    updateBodyVelocity(ball)
-  })
-}
-
 const timer = function() {
   timeText.setText(`Time: ${time}`)
   this.time.addEvent({
@@ -32,9 +10,8 @@ const timer = function() {
       time += 1
       const a = time % 5
 
-      if (a === 0) {
-        GLOB_VELOCITY = GLOB_VELOCITY * 1.05
-        updateVelocity()
+      if (a === 0 && this.physics.world.timeScale >= 0.2) {
+        this.physics.world.timeScale -= 0.02;
       }
 
       timer.bind(this)()

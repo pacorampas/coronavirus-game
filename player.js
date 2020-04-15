@@ -3,21 +3,137 @@ class PlayerClass {
     this.scene = scene
     this.velocity = velocity
 
-    this.player = scene.physics.add.image(
-      scene.game.config.width / 2 - 20,
-      scene.game.config.height / 2 - 20,
+    this.player = this.initSprite()
+
+    this.player.setVelocity(0, velocity)
+    this.player.setSize(150, 150, true)
+    this.player.setDisplaySize(60, 60)
+    // not needed because we have a borders created with objects body
+    this.player.setCollideWorldBounds(true)
+
+    this.player.setBounce(1)
+  }
+
+  initSprite() {
+    this.scene.anims.create({
+      key: 'player_walk_down',
+      frames: this.scene.anims.generateFrameNumbers('player_down'),
+      frameRate: 8,
+      yoyo: false,
+      repeat: -1,
+    })
+
+    this.player = this.scene.physics.add.sprite(
+      this.scene.game.config.width / 2 - 20,
+      this.scene.game.config.height / 2 - 20,
       'player'
     )
-    this.player.setVelocityX(velocity * -1)
-    this.player.setSize(200, 200, true)
-    this.player.setDisplaySize(40, 40)
 
-    this.player.setCollideWorldBounds(true)
-    this.player.setBounce(1)
+    this.player.anims.load('player_walk_down')
+
+    this.player
+
+    this.player.anims.play('player_walk_down')
+
+    return this.player
   }
 
   get() {
     return this.player
+  }
+
+  DIRECTIONS = {
+    up: 1,
+    upRight: 2,
+    right: 3,
+    downRight: 4,
+    down: 5,
+    downLeft: 6,
+    left: 7,
+    upLeft: 8
+  }
+
+  inferNewDirection() {
+    if (!this.player || !this.player.body) {
+      return 
+    }
+
+    const { x, y } = this.player.body.velocity
+
+    const up = y < 0
+    const down = y > 0
+    const right = x > 0
+    const left = x < 0
+
+    if (up) {
+      if (right) {
+        return this.DIRECTIONS.upRight
+      } else if (left) {
+        return this.DIRECTIONS.upLeft
+      }
+
+      return this.DIRECTIONS.up
+
+    } else if (down) {
+      if (right) {
+        return this.DIRECTIONS.downRight
+      } else if (left) {
+        return this.DIRECTIONS.downLeft
+      }
+      return this.DIRECTIONS.down
+    } 
+    
+    if (right) {
+      return this.DIRECTIONS.right
+    } else if (left) {
+      return this.DIRECTIONS.left
+    }
+  }
+
+  setAnimationByDirection() {
+    switch(this.inferNewDirection()) {
+      case this.DIRECTIONS.up:
+        this.player.setAngle(180)
+        return
+      case this.DIRECTIONS.upRight:
+        this.player.setAngle(-135)
+        return
+      case this.DIRECTIONS.right:
+        this.player.setAngle(-90)
+        return
+      case this.DIRECTIONS.downRight:
+        this.player.setAngle(-45)
+        return
+      case this.DIRECTIONS.down:
+        this.player.setAngle(0)
+        return
+      case this.DIRECTIONS.downLeft:
+        this.player.setAngle(45)
+        return
+      case this.DIRECTIONS.left:
+        this.player.setAngle(90)
+        return
+      case this.DIRECTIONS.upLeft:
+        this.player.setAngle(135)
+        return
+    }
+  }
+
+  checkIfVelocityIsZeroAndUpdate(playerTouching) {
+    const { x, y } = this.player.body.velocity
+    if (x !== 0 || y !== 0) {
+      return
+    }
+
+    if (playerTouching.up) {
+      this.player.setVelocityY(this.velocity * -1)
+    } else if (playerTouching.right) {
+      this.player.setVelocityX(this.velocity * -1)
+    } else if (playerTouching.down) {
+      this.player.setVelocityY(this.velocity)
+    } else if (playerTouching.left) {
+      this.player.setVelocityX(this.velocity)
+    }
   }
 
   collideWithBall(balls, onGameOver) {
@@ -61,8 +177,6 @@ class PlayerClass {
             fixedWidth: this.scene.game.config.width,
           })
           textRestart.setText('click to restart')
-
-          console.log(this.scene)
   
           textRestart.setInteractive()
           textRestart.on('pointerdown', () => {
@@ -72,16 +186,11 @@ class PlayerClass {
           onGameOver()
         }
       }
-  
-      // if (_ball.body.touching.up) {
-      //   ball.setVelocity(-100)
-      // } else if (_ball.body.touching.right) {
-      //   ball.setVelocity(-100)
-      // } else if (_ball.body.touching.down) {
-      //   ball.setVelocity(-100)
-      // } else if (_ball.body.touching.left) {
-      //   ball.setVelocity(-100)
-      // }
+
+      if (_player && _player.body && _player.body.touching) {
+        this.checkIfVelocityIsZeroAndUpdate(_player.body.touching)
+      }
+      this.setAnimationByDirection()
     })
   }
 
@@ -93,17 +202,21 @@ class PlayerClass {
     if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity * -1)
+      this.setAnimationByDirection()
     } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity)
+      this.setAnimationByDirection()
     }
   
     if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity * -1)
+      this.setAnimationByDirection()
     } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity)
+      this.setAnimationByDirection()
     }
   }
 

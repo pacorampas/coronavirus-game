@@ -19,13 +19,13 @@ var config = {
         left: true,
         right: true,
       },
-      debug: true,
-      debugBodyColor: 0xff00ff,
-      debugShowBody: true,
-      debugShowStaticBody: true,
-      debugShowVelocity: true,
-      debugStaticBodyColor: 0x0000ff,
-      debugVelocityColor: 0x00ff00,
+      // debug: true,
+      // debugBodyColor: 0xff00ff,
+      // debugShowBody: true,
+      // debugShowStaticBody: true,
+      // debugShowVelocity: true,
+      // debugStaticBodyColor: 0x0000ff,
+      // debugVelocityColor: 0x00ff00,
       forceX: false,
       fps: 60,
       gravity: {
@@ -51,7 +51,7 @@ var config = {
   },
 }
 
-const BALLS_LENGTH = 14
+const BALLS_LENGTH = 1
 
 var player
 var graphics
@@ -62,6 +62,7 @@ let GLOB_VELOCITY = 100
 var time = 0
 var joystick
 var powerUps
+var borders
 
 var game = new Phaser.Game(config)
 
@@ -92,13 +93,16 @@ function preload() {
   this.load.image('player_mask', 'assets/player_mask.png')
   this.load.image('player_respirator', 'assets/player_respirator.png')
   this.load.image('player_mask_respirator', 'assets/player_mask_respirator.png')
+
+  this.load.spritesheet('player_down', 'assets/sprite_player_down.png', { frameWidth: 256, frameHeight: 256 });
 }
 
 function create() {
   // this.physics.world.setBounds(50, 50, 700, 500);
 
   // graphics = this.add.graphics();
-  
+
+  borders = new Borders(this)
 
   timeText = this.add.text(2, 2)
   player = new PlayerClass(this, GLOB_VELOCITY)
@@ -108,7 +112,12 @@ function create() {
   const handleGameOver = () => {
     GLOB_VELOCITY = 100
   }
+  
   player.collideWithBall(balls.getGroup(), handleGameOver)
+  borders.collideWith([balls.getGroup()])
+  borders.collideWith([player.get()], (_border, _player) => {
+    player.setAnimationByDirection()
+  })
   
 
   //createWorldGui(this.physics.world);
