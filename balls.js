@@ -1,4 +1,5 @@
 class BallsClass {
+  directions = directionsUtil
   constructor(scene, velocity, ballsLength) {
     this.scene = scene
     this.velocity = velocity
@@ -22,6 +23,14 @@ class BallsClass {
       if (Phaser.Math.Between(0, 1) === 1) {
         ball.setVelocity(GLOB_VELOCITY * -1)
       }
+
+      // ball.anims.load('player_walk_down')
+
+      // ball.anims.play('player_walk_down')
+
+      BallsClass.uninfectABall(ball)
+
+      this.directions.setAnimationByDirection(ball)
     })
 
     BallsClass.infectABall(this.balls.getChildren()[0])
@@ -35,22 +44,12 @@ class BallsClass {
 
   static infectABall(ball) {
     ball.setData('infected', true)
-    BallsClass.updateTexture(ball)
+    ball.setTint('0xd1045a')
   }
 
   static uninfectABall(ball) {
     ball.setData('infected', false)
-    BallsClass.updateTexture(ball)
-  }
-
-  static updateTexture(ball) {
-    const infected = ball.getData('infected')
-
-    if (infected) {
-      ball.setTexture('infected')
-    } else {
-      ball.setTexture('ball')
-    }
+    ball.setTint('0xfa5fd6')
   }
   
   ballCollideWithBall() {
@@ -60,7 +59,14 @@ class BallsClass {
       } else if (_ballB.getData('infected') && !_ballA.getData('infected')) {
         BallsClass.infectABall(_ballA)
       }
+
+      this.directions.setAnimationByDirection(_ballA)
+      this.directions.setAnimationByDirection(_ballB)
     })
+  }
+
+  setAnimationByDirection(ball) {
+    this.directions.setAnimationByDirection(ball)
   }
 
 }

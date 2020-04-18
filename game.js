@@ -51,7 +51,7 @@ var config = {
   },
 }
 
-const BALLS_LENGTH = 14
+const BALLS_LENGTH = 20
 
 var player
 var graphics
@@ -90,6 +90,9 @@ function preload() {
   this.load.image('solid_block', 'assets/block.png')
 
   this.load.image('player', 'assets/player.png')
+
+  this.load.spritesheet('person', 'assets/sprite_player_down.png', { frameWidth: 256, frameHeight: 256 });
+
   this.load.image('player_mask', 'assets/player_mask.png')
   this.load.image('player_respirator', 'assets/player_respirator.png')
   this.load.image('player_mask_respirator', 'assets/player_mask_respirator.png')
@@ -114,7 +117,9 @@ function create() {
   }
   
   player.collideWithBall(balls.getGroup(), handleGameOver)
-  borders.collideWith([balls.getGroup()])
+  borders.collideWith([balls.getGroup()], (_border, _ball) => {
+    balls.setAnimationByDirection(_ball)
+  })
   borders.collideWith([player.get()], (_border, _player) => {
     player.setAnimationByDirection()
   })

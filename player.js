@@ -1,4 +1,5 @@
 class PlayerClass {
+  directions = directionsUtil
   constructor(scene, velocity) {
     this.scene = scene
     this.velocity = velocity
@@ -6,22 +7,24 @@ class PlayerClass {
     this.player = this.initSprite()
 
     this.player.setVelocity(0, velocity)
-    this.player.setSize(150, 150, true)
-    this.player.setDisplaySize(60, 60)
+    this.player.setSize(200, 200, true)
+    this.player.setDisplaySize(40, 40)
+    this.player.setTint('0x666666')
     // not needed because we have a borders created with objects body
     this.player.setCollideWorldBounds(true)
+
 
     this.player.setBounce(1)
   }
 
   initSprite() {
-    this.scene.anims.create({
-      key: 'player_walk_down',
-      frames: this.scene.anims.generateFrameNumbers('player_down'),
-      frameRate: 8,
-      yoyo: false,
-      repeat: -1,
-    })
+    // this.scene.anims.create({
+    //   key: 'player_walk_down',
+    //   frames: this.scene.anims.generateFrameNumbers('player_down'),
+    //   frameRate: 8,
+    //   yoyo: false,
+    //   repeat: -1,
+    // })
 
     this.player = this.scene.physics.add.sprite(
       this.scene.game.config.width / 2 - 20,
@@ -29,94 +32,15 @@ class PlayerClass {
       'player'
     )
 
-    this.player.anims.load('player_walk_down')
+    // this.player.anims.load('player_walk_down')
 
-    this.player
-
-    this.player.anims.play('player_walk_down')
+    // this.player.anims.play('player_walk_down')
 
     return this.player
   }
 
   get() {
     return this.player
-  }
-
-  DIRECTIONS = {
-    up: 1,
-    upRight: 2,
-    right: 3,
-    downRight: 4,
-    down: 5,
-    downLeft: 6,
-    left: 7,
-    upLeft: 8
-  }
-
-  inferNewDirection() {
-    if (!this.player || !this.player.body) {
-      return 
-    }
-
-    const { x, y } = this.player.body.velocity
-
-    const up = y < 0
-    const down = y > 0
-    const right = x > 0
-    const left = x < 0
-
-    if (up) {
-      if (right) {
-        return this.DIRECTIONS.upRight
-      } else if (left) {
-        return this.DIRECTIONS.upLeft
-      }
-
-      return this.DIRECTIONS.up
-
-    } else if (down) {
-      if (right) {
-        return this.DIRECTIONS.downRight
-      } else if (left) {
-        return this.DIRECTIONS.downLeft
-      }
-      return this.DIRECTIONS.down
-    } 
-    
-    if (right) {
-      return this.DIRECTIONS.right
-    } else if (left) {
-      return this.DIRECTIONS.left
-    }
-  }
-
-  setAnimationByDirection() {
-    switch(this.inferNewDirection()) {
-      case this.DIRECTIONS.up:
-        this.player.setAngle(180)
-        return
-      case this.DIRECTIONS.upRight:
-        this.player.setAngle(-135)
-        return
-      case this.DIRECTIONS.right:
-        this.player.setAngle(-90)
-        return
-      case this.DIRECTIONS.downRight:
-        this.player.setAngle(-45)
-        return
-      case this.DIRECTIONS.down:
-        this.player.setAngle(0)
-        return
-      case this.DIRECTIONS.downLeft:
-        this.player.setAngle(45)
-        return
-      case this.DIRECTIONS.left:
-        this.player.setAngle(90)
-        return
-      case this.DIRECTIONS.upLeft:
-        this.player.setAngle(135)
-        return
-    }
   }
 
   checkIfVelocityIsZeroAndUpdate(playerTouching) {
@@ -190,7 +114,9 @@ class PlayerClass {
       if (_player && _player.body && _player.body.touching) {
         this.checkIfVelocityIsZeroAndUpdate(_player.body.touching)
       }
-      this.setAnimationByDirection()
+
+      this.directions.setAnimationByDirection(_player)
+      this.directions.setAnimationByDirection(_ball)
     })
   }
 
@@ -202,21 +128,21 @@ class PlayerClass {
     if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity * -1)
-      this.setAnimationByDirection()
+      this.directions.setAnimationByDirection(this.player)
     } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity)
-      this.setAnimationByDirection()
+      this.directions.setAnimationByDirection(this.player)
     }
   
     if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity * -1)
-      this.setAnimationByDirection()
+      this.directions.setAnimationByDirection(this.player)
     } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity)
-      this.setAnimationByDirection()
+      this.directions.setAnimationByDirection(this.player)
     }
   }
 
@@ -232,6 +158,10 @@ class PlayerClass {
     } else {
       player.setTexture('player')
     }
+  }
+
+  setAnimationByDirection() {
+    this.directions.setAnimationByDirection(this.player)
   }
 
 }

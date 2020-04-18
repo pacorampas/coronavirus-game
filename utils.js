@@ -88,3 +88,84 @@ class PowerUp {
     }, 5000)
   }
 }
+
+class DirectionsUtilClass {
+  DIRECTIONS = {
+    up: 1,
+    upRight: 2,
+    right: 3,
+    downRight: 4,
+    down: 5,
+    downLeft: 6,
+    left: 7,
+    upLeft: 8
+  }
+
+  inferNewDirection(object) {
+    if (!object || !object.body) {
+      return 
+    }
+
+    const { x, y } = object.body.velocity
+
+    const up = y < 0
+    const down = y > 0
+    const right = x > 0
+    const left = x < 0
+
+    if (up) {
+      if (right) {
+        return this.DIRECTIONS.upRight
+      } else if (left) {
+        return this.DIRECTIONS.upLeft
+      }
+
+      return this.DIRECTIONS.up
+
+    } else if (down) {
+      if (right) {
+        return this.DIRECTIONS.downRight
+      } else if (left) {
+        return this.DIRECTIONS.downLeft
+      }
+      return this.DIRECTIONS.down
+    } 
+    
+    if (right) {
+      return this.DIRECTIONS.right
+    } else if (left) {
+      return this.DIRECTIONS.left
+    }
+  }
+
+  setAnimationByDirection(object) {
+    switch(this.inferNewDirection(object)) {
+      case this.DIRECTIONS.up:
+        object.setAngle(180)
+        return
+      case this.DIRECTIONS.upRight:
+        object.setAngle(-135)
+        return
+      case this.DIRECTIONS.right:
+        object.setAngle(-90)
+        return
+      case this.DIRECTIONS.downRight:
+        object.setAngle(-45)
+        return
+      case this.DIRECTIONS.down:
+        object.setAngle(0)
+        return
+      case this.DIRECTIONS.downLeft:
+        object.setAngle(45)
+        return
+      case this.DIRECTIONS.left:
+        object.setAngle(90)
+        return
+      case this.DIRECTIONS.upLeft:
+        object.setAngle(135)
+        return
+    }
+  }
+}
+
+const directionsUtil = new DirectionsUtilClass()
