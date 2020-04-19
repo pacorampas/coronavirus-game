@@ -55,9 +55,10 @@ class TextButton extends Phaser.GameObjects.Text {
 
 class PowerUp {
   sprintButton = null
-
-  constructor(scene) {
+  callback
+  constructor(scene, cb) {
     this.scene = scene
+    this.callback = cb
 
     // TODO destroy power ups on game over
     this.createSprintButton()
@@ -76,16 +77,11 @@ class PowerUp {
   }
 
   handleSprintClick = () => {
-    this.sprintButton.text = 'Recharging...'
-    this.sprintButton.input.enabled = false
-    // TODO update player velocity
-    player.get().setVelocity(200)
+    this.callback && this.callback()
+  }
 
-    setTimeout(() => {
-      this.sprintButton.text = 'Sprint!'
-      this.sprintButton.input.enabled = true
-      player.get().setVelocity(GLOB_VELOCITY)
-    }, 5000)
+  setText(newText) {
+    this.sprintButton.text = newText
   }
 }
 
@@ -99,6 +95,10 @@ class DirectionsUtilClass {
     downLeft: 6,
     left: 7,
     upLeft: 8
+  }
+
+  getDirections() {
+    return this.DIRECTIONS
   }
 
   inferNewDirection(object) {
@@ -169,3 +169,26 @@ class DirectionsUtilClass {
 }
 
 const directionsUtil = new DirectionsUtilClass()
+
+// class TimeBar extends Phaser.GameObjects.Image {
+
+//   constructor (scene, x, y, myExtra) {
+//       super(scene, x, y)
+//       this.myExtra = myExtra
+//       this.setTexture('cachedtexturekey')
+//       this.setPosition(x, y)
+//   }
+  
+//   preload() {
+
+//   }
+  
+//   create() {
+
+//   } 
+  
+//   preUpdate (time, delta) {
+//     // do stuff with this.myExtra
+//   }
+
+// }

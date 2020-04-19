@@ -51,7 +51,7 @@ var config = {
   },
 }
 
-const BALLS_LENGTH = 20
+const BALLS_LENGTH = 1
 
 var player
 var graphics
@@ -61,7 +61,6 @@ var gameOverText
 let GLOB_VELOCITY = 100
 var time = 0
 var joystick
-var powerUps
 var borders
 
 var game = new Phaser.Game(config)
@@ -141,22 +140,18 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys()
   }
 
-  // SETUP PowerUps
-  powerUps = new PowerUp(this)
-  console.info(powerUps)
-
   timerNextItem.bind(this)()
 
   time = 0
   timer.bind(this)()
 }
 
-function update() {
+function update(time) {
   this.physics.world.wrap(balls.getGroup())
 
   // graphics.clear().fillStyle(0).fillRectShape(this.physics.world.bounds);
 
-  player.inputs(cursors)
+  player.inputs(cursors, time)
 }
 
 function createWorldGui(world) {

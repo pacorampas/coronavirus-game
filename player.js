@@ -1,5 +1,6 @@
 class PlayerClass {
   directions = directionsUtil
+  powerUpsButton
   constructor(scene, velocity) {
     this.scene = scene
     this.velocity = velocity
@@ -15,6 +16,9 @@ class PlayerClass {
 
 
     this.player.setBounce(1)
+
+    const callbackPowerUp = isMobile(this.scene) && this.sprint
+    this.powerUpsButton = new PowerUp(this.scene, callbackPowerUp)
   }
 
   initSprite() {
@@ -120,29 +124,60 @@ class PlayerClass {
     })
   }
 
-  inputs(cursors) {
+  prevCursorInput = 0
+  prevTimeInput = 0
+  TIME_DOUBLE_INPUT = 500
+  CURSORS_INPUT_CODE = {
+    top: 1,
+    right: 2,
+    down: 3,
+    left: 4
+  }
+  inputs(cursors, time) {
     if (!this.player.active) {
       return
+    }
+
+    const fastDoubleInput = newInput => {
+      if (newInput !== this.prevCursorInput) {
+        this.prevTimeInput = time
+        return false
+      }
+      const diffTime = time - this.prevTimeInput
+      this.prevTimeInput = time
+
+      if (diffTime <= this.TIME_DOUBLE_INPUT) {
+        this.sprint()
+        return true
+      }
     }
   
     if (Phaser.Input.Keyboard.JustDown(cursors.left)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity * -1)
       this.directions.setAnimationByDirection(this.player)
+      fastDoubleInput(this.CURSORS_INPUT_CODE.left)
+      this.prevCursorInput = this.CURSORS_INPUT_CODE.left
     } else if (Phaser.Input.Keyboard.JustDown(cursors.right)) {
       this.player.setVelocityY(0)
       this.player.setVelocityX(this.velocity)
-      this.directions.setAnimationByDirection(this.player)
+      this.directions.setAnimationByDirection(this.right)
+      fastDoubleInput(this.CURSORS_INPUT_CODE.right)
+      this.prevCursorInput = this.CURSORS_INPUT_CODE.right
     }
   
     if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity * -1)
       this.directions.setAnimationByDirection(this.player)
+      fastDoubleInput(this.CURSORS_INPUT_CODE.up)
+      this.prevCursorInput = this.CURSORS_INPUT_CODE.up
     } else if (Phaser.Input.Keyboard.JustDown(cursors.down)) {
       this.player.setVelocityX(0)
       this.player.setVelocityY(this.velocity)
       this.directions.setAnimationByDirection(this.player)
+      fastDoubleInput(this.CURSORS_INPUT_CODE.down)
+      this.prevCursorInput = this.CURSORS_INPUT_CODE.down
     }
   }
 
@@ -162,6 +197,47 @@ class PlayerClass {
 
   setAnimationByDirection() {
     this.directions.setAnimationByDirection(this.player)
+  }
+
+  setNewVelocity(newVelovity) {
+    const { x, y } = this.player.body.velocity
+
+    const up = y < 0
+    const down = y > 0
+    const right = x > 0
+    const left = x < 0
+
+    if (up) {
+      this.player.setVelocityY(newVelovity * -1)
+    } else if (down) {
+      this.player.setVelocityY(newVelovity)
+    }
+
+    if (right) {
+      this.player.setVelocityX(newVelovity)
+    } else if (left) {
+      console.log('left')
+      this.player.setVelocityX(newVelovity * -1)
+    }
+  }
+
+  sprintEnable = true
+  sprint = () => {
+    if (!this.sprintEnable) {
+      return
+    }
+
+    this.sprintEnable = false
+    this.powerUpsButton.setText('Recharching...')
+    this.setNewVelocity(this.velocity * 2)
+    setTimeout(() => {
+      this.setNewVelocity(this.velocity)
+      setTimeout(() => {
+        console.log('Sprint enabled')
+        this.powerUpsButton.setText('Sprint')
+        this.sprintEnable = true
+      }, 5000)
+    }, 500)
   }
 
 }
