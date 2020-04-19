@@ -21,7 +21,7 @@ class BallsClass {
       ball.setDisplaySize(40, 40)
   
       if (Phaser.Math.Between(0, 1) === 1) {
-        ball.setVelocity(GLOB_VELOCITY * -1)
+        ball.setVelocity(this.velocity * -1)
       }
 
       // ball.anims.load('player_walk_down')

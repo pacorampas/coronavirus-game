@@ -1,14 +1,14 @@
-const timerNextItem = function() {
+const timerNextItem = function(ballsLength) {
   this.time.addEvent({
     delay: 1000,
-    callback: randomNextItem,
+    callback: () => randomNextItem.bind(this)(ballsLength),
     //args: [],
     callbackScope: this,
     loop: false,
   })
 }
 
-const randomNextItem = function() {
+const randomNextItem = function(ballsLength) {
   const rand = Phaser.Math.Between(0, 4)
 
   switch (rand) {
@@ -20,11 +20,11 @@ const randomNextItem = function() {
       return
     case 2:
       // more social distancing
-      setSocialDistancingItem.bind(this)(Math.floor(BALLS_LENGTH / 2), 1)
+      setSocialDistancingItem.bind(this)(Math.floor(ballsLength / 2), 1)
       return
     case 3:
       // social distancing
-      setSocialDistancingItem.bind(this)(Math.floor(BALLS_LENGTH / 4))
+      setSocialDistancingItem.bind(this)(Math.floor(ballsLength / 4))
       return
     case 4:
       setQuarentineWall.bind(this)()
@@ -33,6 +33,7 @@ const randomNextItem = function() {
 }
 
 const setMaskItem = function() {
+  const player = this.ownVars.player
   const widthObject = 40
   const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
   const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
@@ -52,6 +53,7 @@ const setMaskItem = function() {
 }
 
 const setRespirator = function() {
+  const player = this.ownVars.player
   const widthObject = 40
   const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
   const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
@@ -75,6 +77,7 @@ const setSocialDistancingItem = function(
   howManyShouldBeStopped,
   textureImageForItem
 ) {
+  const player = this.ownVars.player
   const widthObject = 40
   const x = Phaser.Math.Between(0, this.game.config.width - widthObject)
   const y = Phaser.Math.Between(0, this.game.config.height - widthObject)
@@ -136,6 +139,7 @@ const setSocialDistancingItem = function(
 }
 
 const setQuarentineWall = function() {
+  const player = this.ownVars.player
   const widthObject = 20
 
   // if the world is landscape or portrait

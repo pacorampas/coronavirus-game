@@ -80,7 +80,7 @@ class PlayerClass {
           PlayerClass.updateTexture(_player)
         } else {
           _player.destroy()
-          gameOverText = this.scene.add.text(0, this.scene.game.config.height / 2)
+          const gameOverText = this.scene.add.text(0, this.scene.game.config.height / 2)
           gameOverText.setStyle({
             fontSize: '24px',
             color: '#000000',

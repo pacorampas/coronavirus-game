@@ -1,4 +1,10 @@
 const timer = function() {
+  const { player, time } = this.ownVars
+  if (!this.ownVars.timeText) {
+    this.ownVars.timeText = this.add.text(2, 2)
+  }
+  timeText = this.ownVars.timeText
+
   timeText.setText(`Time: ${time}`)
   this.time.addEvent({
     delay: 1000,
@@ -7,8 +13,9 @@ const timer = function() {
         return
       }
 
-      time += 1
-      const a = time % 5
+      const newTime = time + 1
+      this.ownVars.time = newTime
+      const a = newTime % 5
 
       if (a === 0 && this.physics.world.timeScale >= 0.2) {
         this.physics.world.timeScale -= 0.02;
@@ -68,7 +75,7 @@ class PowerUp {
     this.sprintButton = new TextButton(
       this.scene,
       40,
-      config.height - 40,
+      this.scene.game.config.height - 40,
       'Sprint!',
       { fill: '#0f0' },
       this.handleSprintClick

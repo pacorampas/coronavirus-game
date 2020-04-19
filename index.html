@@ -16,12 +16,12 @@
 
     html,
     body,
-    #coronavirus-game {
+    .coronavirus-game {
       height: 100%;
       width: 100%;
     }
 
-    #coronavirus-game {
+    .coronavirus-game {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -29,6 +29,15 @@
   </style>
 </head>
 <body>
-  <div id="coronavirus-game"></div>
+  <div class="coronavirus-game" id="coronavirus-game"></div>
+  <!-- <div class="coronavirus-game" id="coronavirus-game2"></div> -->
 </body>
+<script>
+  const game = initGame('coronavirus-game')
+  // setTimeout(() => {
+  //   game.destroy(true)
+  //   document.body.removeChild(document.getElementById('coronavirus-game'))
+  //   const game2 = initGame('coronavirus-game2')
+  // }, 5000)
+</script>
 </html>
